@@ -41,10 +41,20 @@ def prepare_datasets():
 
     train_dataset, val_dataset, test_dataset = split_dataset(dataset)
 
+    train_dataset = train_dataset.map(tokenize, batched=True)
+    val_dataset = val_dataset.map(tokenize, batched=True)
+    test_dataset = test_dataset.map(tokenize, batched=True)
+
     return train_dataset, val_dataset, test_dataset
+
 
 
 def load_full_tokenized_dataset():
     dataset = load_dataset('renshhhh/fake_news_filipino_parquet')
 
-    return dataset['train']
+    tokenized_dataset = dataset['train'].map(
+        tokenize,
+        batched=True
+        )
+
+    return tokenized_dataset

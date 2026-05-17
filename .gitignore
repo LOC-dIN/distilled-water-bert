@@ -69,5 +69,6 @@ sanity_test/
 
 # virtual environments
 fake-news-distilbert-env/
+.venv/
 venv/
 .env/

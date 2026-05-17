@@ -5,17 +5,31 @@ from src.preprocess import clean_text
 import re
 
 
-tokenizer = AutoTokenizer.from_pretrained(BACKTRANSLATION_MODEL_NAME)
-model = AutoModelForSeq2SeqLM.from_pretrained(BACKTRANSLATION_MODEL_NAME)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+_nllb_tokenizer = None
+_nllb_model = None
 
-model.to(device)
 
 def split_sentences(text):
     return re.split(r'(?<=[.!?])\s+',text.strip())
 
+def load_nllb():
+    global _nllb_tokenizer, _nllb_model
+
+    if _nllb_tokenizer is None or _nllb_model is None:
+        print('Loading NLLB translation model...')
+        _nllb_tokenizer = AutoTokenizer.from_pretrained(BACKTRANSLATION_MODEL_NAME)
+        _nllb_model = AutoModelForSeq2SeqLM.from_pretrained(BACKTRANSLATION_MODEL_NAME)
+        _nllb_model.to(device)
+
+    return _nllb_tokenizer, _nllb_model
+
 def process_text(text, mode=None):
     text = clean_text(text)
+
+    if mode is None:
+        return text
+
     sentences = split_sentences(text)
 
     processed = []
@@ -36,6 +50,7 @@ def process_text(text, mode=None):
 
 
 def translate(text, src_lang, tgt_lang):
+    tokenizer, model = load_nllb()
     tokenizer.src_lang = src_lang
 
 
